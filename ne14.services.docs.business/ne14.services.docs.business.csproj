@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ne14.library.message_contracts" Version="1.0.0" />
+    <PackageReference Include="ne14.library.standards" Version="1.0.2" />
+    <PackageReference Include="ne14.library.startup_extensions" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>
