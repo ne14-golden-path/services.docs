@@ -13,8 +13,11 @@ using ne14.library.startup_extensions.Telemetry;
 /// <summary>
 /// Consumer for pdf conversion.
 /// </summary>
-public class PdfConversionConsumer(RabbitMqSession session, ITelemeter telemeter, ILogger<PdfConversionConsumer> logger)
-    : TracedMqConsumer<PdfConversionRequired>(session, telemeter, logger)
+public class PdfConversionConsumer(
+    RabbitMqSession session,
+    ITelemeter telemeter,
+    ILogger<PdfConversionConsumer> logger)
+        : TracedMqConsumer<PdfConversionRequired>(session, telemeter, logger)
 {
     /// <inheritdoc/>
     public override string AppName => "docs-service";
