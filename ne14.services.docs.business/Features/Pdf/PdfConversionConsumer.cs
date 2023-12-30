@@ -6,7 +6,8 @@ namespace ne14.services.docs.business.Features.Pdf;
 
 using Microsoft.Extensions.Logging;
 using ne14.library.message_contracts.Docs;
-using ne14.library.rabbitmq;
+using ne14.library.rabbitmq.Consumer;
+using ne14.library.rabbitmq.Vendor;
 using ne14.library.startup_extensions.Mq;
 using ne14.library.startup_extensions.Telemetry;
 
@@ -14,19 +15,16 @@ using ne14.library.startup_extensions.Telemetry;
 /// Consumer for pdf conversion.
 /// </summary>
 public class PdfConversionConsumer(
-    RabbitMqSession session,
+    IRabbitMqSession session,
     ITelemeter telemeter,
     ILogger<PdfConversionConsumer> logger)
         : TracedMqConsumer<PdfConversionRequired>(session, telemeter, logger)
 {
     /// <inheritdoc/>
-    public override string AppName => "docs-service";
-
-    /// <inheritdoc/>
     public override string ExchangeName => "pdf-conversion";
 
     /// <inheritdoc/>
-    public override async Task Consume(object messageId, PdfConversionRequired message, int attempt)
+    public override async Task Consume(PdfConversionRequired message, ConsumerContext context)
     {
         await Task.CompletedTask;
 

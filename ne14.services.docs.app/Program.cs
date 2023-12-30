@@ -18,6 +18,7 @@ builder.Services.AddEnterpriseHealthChecks();
 builder.Services.AddEnterpriseTelemetry(config);
 
 builder.Services.AddEnterpriseMq(config);
+builder.Services.AddMqProducer<PdfConversionProducer>();
 builder.Services.AddMqConsumer<PdfConversionConsumer>();
 
 builder.Services
