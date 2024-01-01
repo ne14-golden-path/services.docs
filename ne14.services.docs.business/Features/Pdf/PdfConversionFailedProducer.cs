@@ -1,4 +1,4 @@
-﻿// <copyright file="PdfConversionProducer.cs" company="ne1410s">
+﻿// <copyright file="PdfConversionFailedProducer.cs" company="ne1410s">
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
@@ -11,14 +11,14 @@ using ne14.library.startup_extensions.Mq;
 using ne14.library.startup_extensions.Telemetry;
 
 /// <summary>
-/// Demo producer.
+/// Produces <see cref="PdfConversionFailedMessage"/> mq messages.
 /// </summary>
-public class PdfConversionProducer(
+public class PdfConversionFailedProducer(
     IRabbitMqSession session,
     ITelemeter telemeter,
-    ILogger<TracedMqProducer<PdfConversionRequired>> logger)
-        : TracedMqProducer<PdfConversionRequired>(session, telemeter, logger)
+    ILogger<TracedMqProducer<PdfConversionFailedMessage>> logger)
+        : TracedMqProducer<PdfConversionFailedMessage>(session, telemeter, logger)
 {
     /// <inheritdoc/>
-    public override string ExchangeName => "pdf-conversion";
+    public override string ExchangeName => "pdf-conversion-failed";
 }
