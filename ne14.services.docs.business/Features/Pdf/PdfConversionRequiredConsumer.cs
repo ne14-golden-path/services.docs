@@ -4,6 +4,7 @@
 
 namespace ne14.services.docs.business.Features.Pdf;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ne14.library.fluent_errors.Extensions;
 using ne14.library.message_contracts.Docs;
@@ -20,8 +21,9 @@ public class PdfConversionRequiredConsumer(
     PdfConversionFailedProducer failureMessenger,
     IRabbitMqSession session,
     ITelemeter telemeter,
-    ILogger<PdfConversionRequiredConsumer> logger)
-        : TracedMqConsumer<PdfConversionRequiredMessage>(session, telemeter, logger)
+    ILogger<PdfConversionRequiredConsumer> logger,
+    IConfiguration config)
+        : TracedMqConsumer<PdfConversionRequiredMessage>(session, telemeter, logger, config)
 {
     /// <inheritdoc/>
     public override string ExchangeName => "pdf-conversion-required";
