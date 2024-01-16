@@ -8,10 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ne14.library.fluent_errors.Extensions;
 using ne14.library.message_contracts.Docs;
-using ne14.library.rabbitmq.Consumer;
-using ne14.library.rabbitmq.Vendor;
+using ne14.library.messaging.Abstractions.Consumer;
 using ne14.library.startup_extensions.Mq;
 using ne14.library.startup_extensions.Telemetry;
+using RabbitMQ.Client;
 
 /// <summary>
 /// Consumer for pdf conversion.
@@ -19,17 +19,17 @@ using ne14.library.startup_extensions.Telemetry;
 public class PdfConversionRequiredConsumer(
     PdfConversionSucceededProducer successMessenger,
     PdfConversionFailedProducer failureMessenger,
-    IRabbitMqSession session,
+    IConnectionFactory connectionFactory,
     ITelemeter telemeter,
     ILogger<PdfConversionRequiredConsumer> logger,
     IConfiguration config)
-        : TracedMqConsumer<PdfConversionRequiredMessage>(session, telemeter, logger, config)
+        : MqTracingConsumer<PdfConversionRequiredMessage>(connectionFactory, telemeter, logger, config)
 {
     /// <inheritdoc/>
     public override string ExchangeName => "pdf-conversion-required";
 
     /// <inheritdoc/>
-    public override Task Consume(PdfConversionRequiredMessage message, ConsumerContext context)
+    public override Task ConsumeAsync(PdfConversionRequiredMessage message, MqConsumerEventArgs args)
     {
         message.MustExist();
 
