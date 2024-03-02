@@ -7,6 +7,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["ne14.library.clamav/ne14.library.clamav.csproj", "ne14.library.clamav/"]
+COPY ["ne14.library.gotenberg/ne14.library.gotenberg.csproj", "ne14.library.gotenberg/"]
 COPY ["ne14.services.docs.business/ne14.services.docs.business.csproj", "ne14.services.docs.business/"]
 COPY ["ne14.services.docs.app/ne14.services.docs.app.csproj", "ne14.services.docs.app/"]
 RUN --mount=type=secret,id=nuget_config_file dotnet restore "./ne14.services.docs.app/./ne14.services.docs.app.csproj" --configfile "/run/secrets/nuget_config_file"
