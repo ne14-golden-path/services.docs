@@ -3,10 +3,12 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Azure;
 using ne14.library.startup_extensions.Extensions;
 using ne14.library.startup_extensions.Telemetry;
 using ne14.services.docs.app.Features.Av;
 using ne14.services.docs.app.Features.Pdf;
+using ne14.services.docs.business.Features.Blob;
 using ne14.services.docs.business.Features.Pdf;
 
 [assembly: TraceThis]
@@ -22,6 +24,9 @@ builder.Services.AddMqConsumer<PdfConversionRequiredConsumer>();
 builder.Services.AddMqProducer<PdfConversionSucceededProducer>();
 builder.Services.AddMqProducer<PdfConversionFailedProducer>();
 
+var storageConnection = builder.Configuration["AzureClients:LocalBlob"];
+builder.Services.AddSingleton<IBlobRepository, AzureBlobRepository>();
+builder.Services.AddAzureClients(opts => opts.AddBlobServiceClient(storageConnection));
 builder.Services
     .AddPdfConversionFeature(config)
     .AddAntiVirusFeature(config);

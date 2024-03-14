@@ -11,6 +11,7 @@ using ne14.library.message_contracts.Docs;
 using ne14.library.messaging.Abstractions.Consumer;
 using ne14.library.startup_extensions.Mq;
 using ne14.library.startup_extensions.Telemetry;
+using ne14.services.docs.business.Features.Blob;
 using RabbitMQ.Client;
 
 /// <summary>
@@ -19,6 +20,7 @@ using RabbitMQ.Client;
 public class PdfConversionRequiredConsumer(
     PdfConversionSucceededProducer successMessenger,
     PdfConversionFailedProducer failureMessenger,
+    IBlobRepository blobRepository,
     IConnectionFactory connectionFactory,
     ITelemeter telemeter,
     ILogger<PdfConversionRequiredConsumer> logger,
@@ -29,9 +31,10 @@ public class PdfConversionRequiredConsumer(
     public override string ExchangeName => "pdf-conversion-required";
 
     /// <inheritdoc/>
-    public override Task ConsumeAsync(PdfConversionRequiredMessage message, MqConsumerEventArgs args)
+    public override async Task ConsumeAsync(PdfConversionRequiredMessage message, MqConsumerEventArgs args)
     {
         message.MustExist();
+        var input = await blobRepository.DownloadAsync("triage", message.InboundBlobReference);
 
         //// download blob bytes
         //// virus scan content
@@ -52,6 +55,5 @@ public class PdfConversionRequiredConsumer(
         }
 
         //// delete the original
-        return Task.CompletedTask;
     }
 }
