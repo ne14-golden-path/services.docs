@@ -15,8 +15,10 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
     public async Task<Guid> UploadAsync(string containerName, string fileName, Stream content)
     {
         var container = blobService.GetBlobContainerClient(containerName);
-        var createResult = await container.CreateIfNotExistsAsync();
-        createResult.GetRawResponse().IsError.MustBe(false);
+        if (!await container.ExistsAsync())
+        {
+            await container.CreateAsync();
+        }
 
         var blobReference = Guid.NewGuid();
         var metadata = new Dictionary<string, string> { ["filename"] = fileName };
