@@ -48,9 +48,15 @@ public class PdfConversionRequiredConsumer(
             successMessenger.Produce(new(inboundRef, outboundRef));
             await blobRepository.DeleteAsync("triage", inboundRef);
         }
-        catch (Exception ex) when (args.AttemptNumber == this.MaximumAttempts)
+        catch (Exception ex)
         {
-            failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
+            logger.LogError(ex, "pdf conversion failed");
+
+            if (args.AttemptNumber == this.MaximumAttempts)
+            {
+                failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
+            }
+
             throw;
         }
     }
