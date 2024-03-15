@@ -14,7 +14,7 @@ public interface IBlobRepository
     /// </summary>
     /// <param name="containerName">The container name.</param>
     /// <param name="fileName">The file name.</param>
-    /// <param name="content">The content type.</param>
+    /// <param name="content">The content.</param>
     /// <returns>The newly generated blob reference.</returns>
     public Task<Guid> UploadAsync(string containerName, string fileName, Stream content);
 
@@ -25,4 +25,12 @@ public interface IBlobRepository
     /// <param name="blobReference">The blob reference.</param>
     /// <returns>The content stream.</returns>
     public Task<Stream> DownloadAsync(string containerName, Guid blobReference);
+
+    /// <summary>
+    /// Deletes a blob.
+    /// </summary>
+    /// <param name="containerName">The container name.</param>
+    /// <param name="blobReference">The blob reference.</param>
+    /// <returns>Async task.</returns>
+    public Task DeleteAsync(string containerName, Guid blobReference);
 }

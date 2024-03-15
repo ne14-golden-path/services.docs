@@ -5,6 +5,8 @@
 namespace ne14.services.docs.business.Features.Blob;
 
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using ne14.library.fluent_errors.Extensions;
 
 /// <inheritdoc cref="IBlobRepository"/>
 public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepository
@@ -13,12 +15,14 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
     public async Task<Guid> UploadAsync(string containerName, string fileName, Stream content)
     {
         var container = blobService.GetBlobContainerClient(containerName);
-        await container.CreateIfNotExistsAsync();
+        var createResult = await container.CreateIfNotExistsAsync();
+        createResult.GetRawResponse().IsError.MustBe(false);
 
         var blobReference = Guid.NewGuid();
+        var metadata = new Dictionary<string, string> { ["filename"] = fileName };
         var blob = container.GetBlobClient(blobReference.ToString());
-        await blob.UploadAsync(content);
-        await blob.SetMetadataAsync(new Dictionary<string, string> { ["filename"] = fileName });
+        var uploadResult = await blob.UploadAsync(content, new BlobUploadOptions { Metadata = metadata });
+        uploadResult.GetRawResponse().IsError.MustBe(false);
 
         return blobReference;
     }
@@ -28,8 +32,20 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
     {
         var container = blobService.GetBlobContainerClient(containerName);
         var blob = container.GetBlobClient(blobReference.ToString());
-        var result = await blob.DownloadContentAsync();
-        var fileName = result.Value.Details.Metadata["filename"];
-        return result.Value.Content.ToStream();
+        var retVal = new MemoryStream();
+        var result = await blob.DownloadToAsync(retVal);
+        result.IsError.MustBe(false);
+
+        var metadata = (await blob.GetPropertiesAsync()).Value.Metadata;
+        return retVal;
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteAsync(string containerName, Guid blobReference)
+    {
+        var container = blobService.GetBlobContainerClient(containerName);
+        var blob = container.GetBlobClient(blobReference.ToString());
+        var result = await blob.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+        result.GetRawResponse().IsError.MustBe(false);
     }
 }

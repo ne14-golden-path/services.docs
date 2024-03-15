@@ -15,4 +15,11 @@ public interface IPdfConverter
     /// <param name="url">The website url.</param>
     /// <returns>A pdf document.</returns>
     public Task<Stream> FromUrl(string url);
+
+    /// <summary>
+    /// Converts html to a pdf document.
+    /// </summary>
+    /// <param name="htmlContent">The html content.</param>
+    /// <returns>A pdf document.</returns>
+    public Task<Stream> FromHtml(Stream htmlContent);
 }

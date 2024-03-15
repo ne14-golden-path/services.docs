@@ -11,6 +11,7 @@ using ne14.library.message_contracts.Docs;
 using ne14.library.messaging.Abstractions.Consumer;
 using ne14.library.startup_extensions.Mq;
 using ne14.library.startup_extensions.Telemetry;
+using ne14.services.docs.business.Features.Av;
 using ne14.services.docs.business.Features.Blob;
 using RabbitMQ.Client;
 
@@ -21,6 +22,8 @@ public class PdfConversionRequiredConsumer(
     PdfConversionSucceededProducer successMessenger,
     PdfConversionFailedProducer failureMessenger,
     IBlobRepository blobRepository,
+    IAntiVirusScanner avScanner,
+    IPdfConverter pdfConverter,
     IConnectionFactory connectionFactory,
     ITelemeter telemeter,
     ILogger<PdfConversionRequiredConsumer> logger,
@@ -34,26 +37,21 @@ public class PdfConversionRequiredConsumer(
     public override async Task ConsumeAsync(PdfConversionRequiredMessage message, MqConsumerEventArgs args)
     {
         message.MustExist();
-        var input = await blobRepository.DownloadAsync("triage", message.InboundBlobReference);
-
-        //// download blob bytes
-        //// virus scan content
-        //// convert the bytes to pdf
-        //// upload to outbound
-
-        var convertedOk = Random.Shared.Next() % 2 == 0;
         var inboundRef = message.InboundBlobReference;
-        var outboundRef = Guid.NewGuid();
 
-        if (convertedOk)
+        try
         {
+            var input = await blobRepository.DownloadAsync("triage", inboundRef);
+            await avScanner.AssertIsClean(input);
+            var converted = await pdfConverter.FromHtml(input);
+            var outboundRef = await blobRepository.UploadAsync("converted", "my-file.pdf", converted);
             successMessenger.Produce(new(inboundRef, outboundRef));
+            await blobRepository.DeleteAsync("triage", inboundRef);
         }
-        else
+        catch (Exception ex) when (args.AttemptNumber == this.MaximumAttempts)
         {
-            failureMessenger.Produce(new(inboundRef, "failed, bruh"));
+            failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
+            throw;
         }
-
-        //// delete the original
     }
 }

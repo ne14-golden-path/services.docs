@@ -7,6 +7,7 @@ namespace ne14.library.gotenberg;
 using Gotenberg.Sharp.API.Client;
 using Gotenberg.Sharp.API.Client.Domain.Builders;
 using Gotenberg.Sharp.API.Client.Domain.Builders.Faceted;
+using Gotenberg.Sharp.API.Client.Domain.Requests.Facets;
 using Microsoft.Extensions.Logging;
 using ne14.library.startup_extensions.Telemetry;
 using ne14.services.docs.business.Features.Pdf;
@@ -31,13 +32,31 @@ public class GotenbergService(
             .WithDimensions(dims => dims
                 .SetPaperSize(PaperSizes.A4)
                 .SetMargins(Margins.None)
-                .SetScale(.90)
+                .SetScale(.95)
                 .LandScape());
 
         var request = await builder.BuildAsync();
         var retVal = await client.UrlToPdfAsync(request);
         telemeter.CaptureMetric(MetricType.Counter, retVal.Length, "pdf_file_size");
         logger.LogInformation("Pdf of {Bytes} bytes converted from url: {Url}", retVal.Length, url);
+
+        return retVal;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Stream> FromHtml(Stream htmlContent)
+    {
+        var builder = new HtmlRequestBuilder()
+            .AddDocument(doc => doc.SetBody(new ContentItem(htmlContent)))
+            .WithDimensions(dims => dims
+                .SetPaperSize(PaperSizes.A4)
+                .SetMargins(Margins.None)
+                .SetScale(.95));
+
+        var request = await builder.BuildAsync();
+        var retVal = await client.HtmlToPdfAsync(request);
+        telemeter.CaptureMetric(MetricType.Counter, retVal.Length, "pdf_file_size");
+        logger.LogInformation("Pdf of {Bytes} bytes converted from html", retVal.Length);
 
         return retVal;
     }
