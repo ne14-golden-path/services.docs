@@ -22,4 +22,11 @@ public interface IPdfConverter
     /// <param name="htmlContent">The html content.</param>
     /// <returns>A pdf document.</returns>
     public Task<Stream> FromHtml(Stream htmlContent);
+
+    /// <summary>
+    /// Converts office doc to a pdf document.
+    /// </summary>
+    /// <param name="officeDoc">The office doc content.</param>
+    /// <returns>A pdf document.</returns>
+    public Task<Stream> FromOfficeDoc(Stream officeDoc);
 }

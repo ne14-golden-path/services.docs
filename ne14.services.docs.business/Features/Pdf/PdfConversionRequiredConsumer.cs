@@ -41,17 +41,25 @@ public class PdfConversionRequiredConsumer(
 
         try
         {
-            var input = await blobRepository.DownloadAsync("triage", inboundRef);
-            await avScanner.AssertIsClean(input);
-            var converted = await pdfConverter.FromHtml(input);
-            var outboundRef = await blobRepository.UploadAsync("converted", "my-file.pdf", converted);
+            var inputBlob = await blobRepository.DownloadAsync("triage", inboundRef);
+            await avScanner.AssertIsClean(inputBlob.Content);
+            var extension = new FileInfo(inputBlob.FileName).Extension.ToLowerInvariant();
+            var converted = extension switch
+            {
+                ".html" => await pdfConverter.FromHtml(inputBlob.Content),
+                ".docx" => await pdfConverter.FromOfficeDoc(inputBlob.Content),
+                _ => throw new PermanentFailureException("Not supported for pdf conversion")
+            };
+
+            await inputBlob.Content.DisposeAsync();
+            var outputBlob = new BlobMeta(converted, inputBlob.FileName + ".pdf");
+            var outboundRef = await blobRepository.UploadAsync("converted", outputBlob);
             successMessenger.Produce(new(inboundRef, outboundRef));
             await blobRepository.DeleteAsync("triage", inboundRef);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "pdf conversion failed");
-
             if (args.AttemptNumber == this.MaximumAttempts)
             {
                 failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));

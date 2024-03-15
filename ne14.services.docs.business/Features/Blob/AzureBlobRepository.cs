@@ -12,7 +12,7 @@ using ne14.library.fluent_errors.Extensions;
 public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepository
 {
     /// <inheritdoc/>
-    public async Task<Guid> UploadAsync(string containerName, string fileName, Stream content)
+    public async Task<Guid> UploadAsync(string containerName, BlobMeta blob)
     {
         var container = blobService.GetBlobContainerClient(containerName);
         if (!await container.ExistsAsync())
@@ -21,16 +21,17 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
         }
 
         var blobReference = Guid.NewGuid();
-        var metadata = new Dictionary<string, string> { ["filename"] = fileName };
-        var blob = container.GetBlobClient(blobReference.ToString());
-        var uploadResult = await blob.UploadAsync(content, new BlobUploadOptions { Metadata = metadata });
+        var metadata = new Dictionary<string, string> { ["filename"] = blob.FileName };
+        var blobClient = container.GetBlobClient(blobReference.ToString());
+        var uploadResult = await blobClient.UploadAsync(blob.Content, new BlobUploadOptions { Metadata = metadata });
         uploadResult.GetRawResponse().IsError.MustBe(false);
+        await blob.Content.DisposeAsync();
 
         return blobReference;
     }
 
     /// <inheritdoc/>
-    public async Task<Stream> DownloadAsync(string containerName, Guid blobReference)
+    public async Task<BlobMeta> DownloadAsync(string containerName, Guid blobReference)
     {
         var container = blobService.GetBlobContainerClient(containerName);
         var blob = container.GetBlobClient(blobReference.ToString());
@@ -39,7 +40,7 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
         result.IsError.MustBe(false);
 
         var metadata = (await blob.GetPropertiesAsync()).Value.Metadata;
-        return retVal;
+        return new(retVal, metadata["filename"]);
     }
 
     /// <inheritdoc/>

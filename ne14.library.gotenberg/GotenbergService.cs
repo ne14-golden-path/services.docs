@@ -60,4 +60,19 @@ public class GotenbergService(
 
         return retVal;
     }
+
+    /// <inheritdoc/>
+    public async Task<Stream> FromOfficeDoc(Stream officeDoc)
+    {
+        var builder = new MergeOfficeBuilder()
+            .WithAssets(b => b.AddItem("office-doc.docx", officeDoc))
+            .SetPdfFormat(PdfFormats.A2b)
+            .UseNativePdfFormat();
+
+        var retVal = await client.MergeOfficeDocsAsync(builder);
+        telemeter.CaptureMetric(MetricType.Counter, retVal.Length, "pdf_file_size");
+        logger.LogInformation("Pdf of {Bytes} bytes converted from office doc", retVal.Length);
+
+        return retVal;
+    }
 }
