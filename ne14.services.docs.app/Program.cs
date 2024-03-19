@@ -25,11 +25,10 @@ builder.Services.AddMqProducer<PdfConversionSucceededProducer>();
 builder.Services.AddMqProducer<PdfConversionFailedProducer>();
 
 var storageConnection = builder.Configuration["AzureClients:LocalBlob"];
-builder.Services.AddSingleton<IBlobRepository, AzureBlobRepository>();
+builder.Services.AddScoped<IBlobRepository, AzureBlobRepository>();
 builder.Services.AddAzureClients(opts => opts.AddBlobServiceClient(storageConnection));
-builder.Services
-    .AddPdfConversionFeature(config)
-    .AddAntiVirusFeature(config);
+builder.Services.AddPdfConversionFeature(config);
+builder.Services.AddAntiVirusFeature(config);
 
 var app = builder.Build();
 app.UseEnterpriseHealthChecks();

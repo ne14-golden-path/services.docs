@@ -25,8 +25,8 @@ public static class AntiVirusStartupExtensions
         IConfiguration configuration)
     {
         return services
-            .AddSingleton<IClamClient>(_ => GetClamClient(configuration))
-            .AddSingleton<IAntiVirusScanner, ClamAvScanner>();
+            .AddScoped<IClamClient>(_ => GetClamClient(configuration))
+            .AddScoped<IAntiVirusScanner, ClamAvScanner>();
     }
 
     private static ClamClient GetClamClient(IConfiguration configuration)

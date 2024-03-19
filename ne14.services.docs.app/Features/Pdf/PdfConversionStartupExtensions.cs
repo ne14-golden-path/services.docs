@@ -32,6 +32,6 @@ public static class PdfConversionStartupExtensions
         services.AddOptions<GotenbergSharpClientOptions>().Bind(section);
         services.AddGotenbergSharpClient();
 
-        return services.AddSingleton<IPdfConverter, GotenbergService>();
+        return services.AddScoped<IPdfConverter, GotenbergService>();
     }
 }

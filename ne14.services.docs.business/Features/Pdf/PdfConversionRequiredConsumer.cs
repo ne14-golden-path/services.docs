@@ -60,7 +60,7 @@ public class PdfConversionRequiredConsumer(
         catch (Exception ex)
         {
             logger.LogError(ex, "pdf conversion failed");
-            if (args.AttemptNumber == this.MaximumAttempts)
+            if (args.AttemptNumber == this.MaximumAttempts || ex is PermanentFailureException)
             {
                 failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
             }
