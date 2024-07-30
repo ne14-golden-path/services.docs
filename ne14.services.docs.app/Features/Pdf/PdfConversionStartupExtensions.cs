@@ -4,10 +4,10 @@
 
 namespace ne14.services.docs.app.Features.Pdf;
 
+using FluentErrors.Extensions;
 using Gotenberg.Sharp.API.Client;
 using Gotenberg.Sharp.API.Client.Domain.Settings;
 using Gotenberg.Sharp.API.Client.Extensions;
-using ne14.library.fluent_errors.Extensions;
 using ne14.library.gotenberg;
 using ne14.services.docs.business.Features.Pdf;
 

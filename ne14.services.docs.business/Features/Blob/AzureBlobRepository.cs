@@ -6,7 +6,7 @@ namespace ne14.services.docs.business.Features.Blob;
 
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using ne14.library.fluent_errors.Extensions;
+using FluentErrors.Extensions;
 
 /// <inheritdoc cref="IBlobRepository"/>
 public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepository
@@ -14,6 +14,7 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
     /// <inheritdoc/>
     public async Task<Guid> UploadAsync(string containerName, BlobMeta blob)
     {
+        blob.MustExist();
         var container = blobService.GetBlobContainerClient(containerName);
         if (!await container.ExistsAsync())
         {

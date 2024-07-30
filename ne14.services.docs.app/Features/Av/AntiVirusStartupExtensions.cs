@@ -4,9 +4,9 @@
 
 namespace ne14.services.docs.app.Features.Av;
 
+using FluentErrors.Extensions;
 using nClam;
 using ne14.library.clamav;
-using ne14.library.fluent_errors.Extensions;
 using ne14.services.docs.business.Features.Av;
 
 /// <summary>

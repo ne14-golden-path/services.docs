@@ -32,4 +32,4 @@ builder.Services.AddAntiVirusFeature(config);
 
 var app = builder.Build();
 app.UseEnterpriseHealthChecks();
-app.Run();
+await app.RunAsync();

@@ -4,9 +4,9 @@
 
 namespace ne14.services.docs.business.Features.Pdf;
 
+using FluentErrors.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ne14.library.fluent_errors.Extensions;
 using ne14.library.message_contracts.Docs;
 using ne14.library.messaging.Abstractions.Consumer;
 using ne14.library.startup_extensions.Mq;
@@ -60,7 +60,7 @@ public class PdfConversionRequiredConsumer(
         catch (Exception ex)
         {
             logger.LogError(ex, "pdf conversion failed");
-            if (args.AttemptNumber == this.MaximumAttempts || ex is PermanentFailureException)
+            if (args.MustExist().AttemptNumber == this.MaximumAttempts || ex is PermanentFailureException)
             {
                 failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
             }
