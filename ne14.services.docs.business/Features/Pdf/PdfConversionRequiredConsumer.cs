@@ -4,13 +4,13 @@
 
 namespace ne14.services.docs.business.Features.Pdf;
 
+using EnterpriseStartup.Messaging.Abstractions.Consumer;
+using EnterpriseStartup.Mq;
+using EnterpriseStartup.Telemetry;
 using FluentErrors.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ne14.library.message_contracts.Docs;
-using ne14.library.messaging.Abstractions.Consumer;
-using ne14.library.startup_extensions.Mq;
-using ne14.library.startup_extensions.Telemetry;
 using ne14.services.docs.business.Features.Av;
 using ne14.services.docs.business.Features.Blob;
 using RabbitMQ.Client;
@@ -54,7 +54,7 @@ public class PdfConversionRequiredConsumer(
             await inputBlob.Content.DisposeAsync();
             var outputBlob = new BlobMeta(converted, inputBlob.FileName + ".pdf");
             var outboundRef = await blobRepository.UploadAsync("converted", outputBlob);
-            successMessenger.Produce(new(inboundRef, outboundRef));
+            successMessenger.Produce(new(message.UserId, inboundRef, outboundRef));
             await blobRepository.DeleteAsync("triage", inboundRef);
         }
         catch (Exception ex)
@@ -62,7 +62,7 @@ public class PdfConversionRequiredConsumer(
             logger.LogError(ex, "pdf conversion failed");
             if (args.MustExist().AttemptNumber == this.MaximumAttempts || ex is PermanentFailureException)
             {
-                failureMessenger.Produce(new(inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
+                failureMessenger.Produce(new(message.UserId, inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
             }
 
             throw;

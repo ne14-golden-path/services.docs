@@ -2,6 +2,6 @@
 // Copyright (c) ne1410s. All rights reserved.
 // </copyright>
 
-using ne14.library.startup_extensions.Telemetry;
+using EnterpriseStartup.Telemetry;
 
 [assembly: TraceThis]

@@ -4,10 +4,10 @@
 
 namespace ne14.library.clamav;
 
+using EnterpriseStartup.Telemetry;
 using FluentErrors.Extensions;
 using Microsoft.Extensions.Logging;
 using nClam;
-using ne14.library.startup_extensions.Telemetry;
 using ne14.services.docs.business.Features.Av;
 
 /// <inheritdoc cref="IAntiVirusScanner"/>

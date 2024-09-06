@@ -4,12 +4,12 @@
 
 namespace ne14.library.gotenberg;
 
+using EnterpriseStartup.Telemetry;
 using Gotenberg.Sharp.API.Client;
 using Gotenberg.Sharp.API.Client.Domain.Builders;
 using Gotenberg.Sharp.API.Client.Domain.Builders.Faceted;
 using Gotenberg.Sharp.API.Client.Domain.Requests.Facets;
 using Microsoft.Extensions.Logging;
-using ne14.library.startup_extensions.Telemetry;
 using ne14.services.docs.business.Features.Pdf;
 
 /// <inheritdoc cref="IPdfConverter"/>

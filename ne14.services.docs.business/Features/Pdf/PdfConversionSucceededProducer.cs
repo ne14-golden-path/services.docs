@@ -4,10 +4,10 @@
 
 namespace ne14.services.docs.business.Features.Pdf;
 
+using EnterpriseStartup.Mq;
+using EnterpriseStartup.Telemetry;
 using Microsoft.Extensions.Logging;
 using ne14.library.message_contracts.Docs;
-using ne14.library.startup_extensions.Mq;
-using ne14.library.startup_extensions.Telemetry;
 using RabbitMQ.Client;
 
 /// <summary>
