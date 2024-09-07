@@ -54,7 +54,7 @@ public class PdfConversionRequiredConsumer(
             await inputBlob.Content.DisposeAsync();
             var outputBlob = new BlobMeta(converted, inputBlob.FileName + ".pdf");
             var outboundRef = await blobRepository.UploadAsync("converted", outputBlob);
-            successMessenger.Produce(new(message.UserId, inboundRef, outboundRef));
+            successMessenger.Produce(new(message.UserId, message.FileName, inboundRef, outboundRef));
             await blobRepository.DeleteAsync("triage", inboundRef);
         }
         catch (Exception ex)
@@ -62,7 +62,8 @@ public class PdfConversionRequiredConsumer(
             logger.LogError(ex, "pdf conversion failed");
             if (args.MustExist().AttemptNumber == this.MaximumAttempts || ex is PermanentFailureException)
             {
-                failureMessenger.Produce(new(message.UserId, inboundRef, $"{ex.GetType().Name} - {ex.Message}"));
+                var reason = $"{ex.GetType().Name} - {ex.Message}";
+                failureMessenger.Produce(new(message.UserId, message.FileName, inboundRef, reason));
             }
 
             throw;
