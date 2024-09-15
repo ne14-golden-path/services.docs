@@ -4,7 +4,6 @@
 
 namespace ne14.services.docs.app.Features.Av;
 
-using FluentErrors.Extensions;
 using nClam;
 using ne14.library.clamav;
 using ne14.services.docs.business.Features.Av;
@@ -24,21 +23,16 @@ public static class AntiVirusStartupExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        return services
-            .AddScoped<IClamClient>(_ => GetClamClient(configuration))
-            .AddScoped<IAntiVirusScanner, ClamAvScanner>();
-    }
+        var clamHost = configuration.GetValue<string>("ClamAv:Hostname")!;
+        var clamPort = configuration.GetValue<int>("ClamAv:Port");
+        var clamMaxSize = configuration.GetValue<long>("ClamAv:MaxStreamSize");
 
-    private static ClamClient GetClamClient(IConfiguration configuration)
-    {
-        var clamAvServer = configuration.GetValue<string>("ClamAv:Hostname");
-        var clamAvPort = configuration.GetValue<int>("ClamAv:Port");
-        var clamAvMaxSize = configuration.GetValue<long>("ClamAv:MaxStreamSize");
-        clamAvServer.MustExist();
+        services
+            .AddScoped<IClamClient>(_ => new ClamClient(clamHost, clamPort) { MaxStreamSize = clamMaxSize })
+            .AddScoped<IAntiVirusScanner, ClamAvScanner>()
+            .AddHealthChecks()
+            .AddTcpHealthCheck(o => o.AddHost(clamHost, clamPort), "clamav");
 
-        return new ClamClient(clamAvServer!, clamAvPort)
-        {
-            MaxStreamSize = clamAvMaxSize,
-        };
+        return services;
     }
 }
