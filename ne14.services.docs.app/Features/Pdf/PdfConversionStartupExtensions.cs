@@ -28,10 +28,15 @@ public static class PdfConversionStartupExtensions
     {
         configuration.MustExist();
 
+        var healthUrl = configuration.GetValue<string>("GotenbergSharpClient:HealthCheckUrl")!;
         var section = configuration.GetSection(nameof(GotenbergSharpClient));
+
         services.AddOptions<GotenbergSharpClientOptions>().Bind(section);
         services.AddGotenbergSharpClient();
+        services.AddScoped<IPdfConverter, GotenbergService>()
+            .AddHealthChecks()
+            .AddUrlGroup(new Uri(healthUrl), "gotenberg");
 
-        return services.AddScoped<IPdfConverter, GotenbergService>();
+        return services;
     }
 }
