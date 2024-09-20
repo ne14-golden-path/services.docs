@@ -15,7 +15,7 @@ using ne14.services.docs.business.Features.Pdf;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
-builder.Services.AddEnterpriseHealthChecks().AddAzureBlobStorage();
+builder.Services.AddEnterpriseHealthChecks().AddAzureBlobStorage(timeout: TimeSpan.FromSeconds(5));
 builder.Services.AddEnterpriseTelemetry(config);
 builder.Services.AddEnterpriseMq(config)
     .AddMqConsumer<PdfConversionRequiredConsumer>()
