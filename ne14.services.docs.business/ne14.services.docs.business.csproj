@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Analyse" Version="1.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.22.1" />
-    <PackageReference Include="EnterpriseStartup" Version="1.0.6" />
+    <PackageReference Include="EnterpriseStartup" Version="1.0.7" />
     <PackageReference Include="MethodBoundaryAspect.Fody" Version="2.0.149" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.5" />
     <PackageReference Include="ne14.library.message_contracts" Version="1.0.0" />
