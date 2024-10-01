@@ -30,6 +30,9 @@ public class PdfConversionRequiredConsumer(
     IConfiguration config)
         : MqTracingConsumer<PdfConversionRequiredMessage>(connectionFactory, telemeter, logger, config)
 {
+    private const string TriageContainer = "triage";
+    private const string ConvertedContainer = "converted";
+
     /// <inheritdoc/>
     public override string ExchangeName => "pdf-conversion-required";
 
@@ -41,7 +44,7 @@ public class PdfConversionRequiredConsumer(
 
         try
         {
-            var inputBlob = await blobRepository.DownloadAsync("triage", inboundRef);
+            var inputBlob = await blobRepository.DownloadAsync(TriageContainer, message.UserId, inboundRef);
             await avScanner.AssertIsClean(inputBlob.Content);
             var extension = new FileInfo(inputBlob.FileName).Extension.ToLowerInvariant();
             var converted = extension switch
@@ -53,9 +56,9 @@ public class PdfConversionRequiredConsumer(
 
             await inputBlob.Content.DisposeAsync();
             var outputBlob = new BlobMeta(converted, inputBlob.FileName + ".pdf");
-            var outboundRef = await blobRepository.UploadAsync("converted", outputBlob);
+            var outboundRef = await blobRepository.UploadAsync(ConvertedContainer, message.UserId, outputBlob);
             successMessenger.Produce(new(message.UserId, message.FileName, inboundRef, outboundRef));
-            await blobRepository.DeleteAsync("triage", inboundRef);
+            await blobRepository.DeleteAsync(TriageContainer, message.UserId, inboundRef);
         }
         catch (Exception ex)
         {

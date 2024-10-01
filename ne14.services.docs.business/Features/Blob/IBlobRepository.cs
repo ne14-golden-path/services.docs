@@ -13,23 +13,26 @@ public interface IBlobRepository
     /// Uploads a new blob.
     /// </summary>
     /// <param name="containerName">The container name.</param>
+    /// <param name="userId">The user id.</param>
     /// <param name="blob">The blob.</param>
     /// <returns>The newly generated blob reference.</returns>
-    public Task<Guid> UploadAsync(string containerName, BlobMeta blob);
+    public Task<Guid> UploadAsync(string containerName, string userId, BlobMeta blob);
 
     /// <summary>
     /// Downloads a blob.
     /// </summary>
     /// <param name="containerName">The container name.</param>
+    /// <param name="userId">The user id.</param>
     /// <param name="blobReference">The blob reference.</param>
     /// <returns>The blob.</returns>
-    public Task<BlobMeta> DownloadAsync(string containerName, Guid blobReference);
+    public Task<BlobMeta> DownloadAsync(string containerName, string userId, Guid blobReference);
 
     /// <summary>
     /// Deletes a blob.
     /// </summary>
     /// <param name="containerName">The container name.</param>
+    /// <param name="userId">The user id.</param>
     /// <param name="blobReference">The blob reference.</param>
     /// <returns>Async task.</returns>
-    public Task DeleteAsync(string containerName, Guid blobReference);
+    public Task DeleteAsync(string containerName, string userId, Guid blobReference);
 }
