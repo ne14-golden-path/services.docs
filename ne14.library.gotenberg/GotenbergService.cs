@@ -5,6 +5,7 @@
 namespace ne14.library.gotenberg;
 
 using EnterpriseStartup.Telemetry;
+using FluentErrors.Extensions;
 using Gotenberg.Sharp.API.Client;
 using Gotenberg.Sharp.API.Client.Domain.Builders;
 using Gotenberg.Sharp.API.Client.Domain.Builders.Faceted;
@@ -46,6 +47,7 @@ public class GotenbergService(
     /// <inheritdoc/>
     public async Task<Stream> FromHtml(Stream htmlContent)
     {
+        htmlContent.MustExist().Seek(0, SeekOrigin.Begin);
         var builder = new HtmlRequestBuilder()
             .AddDocument(doc => doc.SetBody(new ContentItem(htmlContent)))
             .WithDimensions(dims => dims
@@ -64,6 +66,7 @@ public class GotenbergService(
     /// <inheritdoc/>
     public async Task<Stream> FromOfficeDoc(Stream officeDoc)
     {
+        officeDoc.MustExist().Seek(0, SeekOrigin.Begin);
         var builder = new MergeOfficeBuilder()
             .WithAssets(b => b.AddItem("office-doc.docx", officeDoc))
             .SetPdfFormat(PdfFormats.A2b)

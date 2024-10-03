@@ -24,6 +24,7 @@ public class AzureBlobRepository(BlobServiceClient blobService) : IBlobRepositor
         var blobReference = Guid.NewGuid();
         var metadata = new Dictionary<string, string> { ["filename"] = blob.FileName };
         var blobClient = container.GetBlobClient($"{userId}/{blobReference}");
+        blob.Content.Seek(0, SeekOrigin.Begin);
         var uploadResult = await blobClient.UploadAsync(blob.Content, new BlobUploadOptions { Metadata = metadata });
         uploadResult.GetRawResponse().IsError.MustBe(false);
         await blob.Content.DisposeAsync();

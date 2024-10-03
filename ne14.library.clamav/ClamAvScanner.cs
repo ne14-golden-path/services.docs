@@ -26,6 +26,7 @@ public class ClamAvScanner(
     public async Task AssertIsClean(Stream content)
     {
         content.MustExist();
+        content.Seek(0, SeekOrigin.Begin);
         var scanResponse = await client.SendAndScanFileAsync(content);
         var scanResult = scanResponse.Result;
         telemeter.CaptureMetric(MetricType.Counter, content.Length, "av_file_size");
