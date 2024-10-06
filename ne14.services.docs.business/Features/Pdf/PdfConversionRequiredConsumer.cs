@@ -55,7 +55,9 @@ public class PdfConversionRequiredConsumer(
             };
 
             await inputBlob.Content.DisposeAsync();
-            var outputBlob = new BlobData(converted, inputBlob.MetaData);
+            var m = inputBlob.MetaData;
+            var outMeta = new BlobMetaData(Guid.Empty, m.ContentType, m.FileName + ".pdf", m.FileSize);
+            var outputBlob = new BlobData(converted, outMeta);
             var outboundRef = await blobRepository.UploadAsync(ConvertedContainer, message.UserId, outputBlob);
             successMessenger.Produce(new(message.UserId, message.FileName, inboundRef, outboundRef));
             await blobRepository.DeleteAsync(TriageContainer, message.UserId, inboundRef);
