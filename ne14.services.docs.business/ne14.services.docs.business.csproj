@@ -13,7 +13,7 @@
     <PackageReference Include="MethodBoundaryAspect.Fody" Version="2.0.150" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.9.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-    <PackageReference Include="ne14.library.message_contracts" Version="1.0.0" />
+    <PackageReference Include="ne14.library.message_contracts" Version="1.0.1" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
