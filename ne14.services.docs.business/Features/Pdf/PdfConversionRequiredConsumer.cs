@@ -4,6 +4,7 @@
 
 namespace ne14.services.docs.business.Features.Pdf;
 
+using EnterpriseStartup.Blobs.Abstractions;
 using EnterpriseStartup.Messaging.Abstractions.Consumer;
 using EnterpriseStartup.Mq;
 using EnterpriseStartup.Telemetry;
@@ -12,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ne14.library.message_contracts.Docs;
 using ne14.services.docs.business.Features.Av;
-using ne14.services.docs.business.Features.Blob;
 using RabbitMQ.Client;
 
 /// <summary>
@@ -21,7 +21,7 @@ using RabbitMQ.Client;
 public class PdfConversionRequiredConsumer(
     PdfConversionSucceededProducer successMessenger,
     PdfConversionFailedProducer failureMessenger,
-    IBlobRepository blobRepository,
+    IUserBlobRepository blobRepository,
     IAntiVirusScanner avScanner,
     IPdfConverter pdfConverter,
     IConnectionFactory connectionFactory,
@@ -46,7 +46,7 @@ public class PdfConversionRequiredConsumer(
         {
             var inputBlob = await blobRepository.DownloadAsync(TriageContainer, message.UserId, inboundRef);
             await avScanner.AssertIsClean(inputBlob.Content);
-            var extension = new FileInfo(inputBlob.FileName).Extension.ToLowerInvariant();
+            var extension = new FileInfo(inputBlob.MetaData.FileName).Extension.ToLowerInvariant();
             var converted = extension switch
             {
                 ".html" => await pdfConverter.FromHtml(inputBlob.Content),
@@ -55,7 +55,9 @@ public class PdfConversionRequiredConsumer(
             };
 
             await inputBlob.Content.DisposeAsync();
-            var outputBlob = new BlobMeta(converted, inputBlob.FileName + ".pdf");
+            var m = inputBlob.MetaData;
+            var outMeta = new BlobMetaData(Guid.Empty, m.ContentType, m.FileName + ".pdf", m.FileSize);
+            var outputBlob = new BlobData(converted, outMeta);
             var outboundRef = await blobRepository.UploadAsync(ConvertedContainer, message.UserId, outputBlob);
             successMessenger.Produce(new(message.UserId, message.FileName, inboundRef, outboundRef));
             await blobRepository.DeleteAsync(TriageContainer, message.UserId, inboundRef);
